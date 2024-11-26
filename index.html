@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization Platform</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f5f7fa, #e0e7f2);
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        .container {
+            max-width: 960px;
+        }
+
+        #iframe-preview {
+            border: 1px solid #ddd;
+            width: 100%;
+            height: 100vh;
+            display: none;
+        }
+
+        #iframe-modal {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        button {
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+        }
+
+        #htmlCode {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            padding: 15px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .rounded-corner {
+            border-radius: 15px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .text-center strong {
+            color: #4a90e2;
+        }
+
+        #loading-indicator {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        #loading-indicator .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .cool-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Arial', sans-serif;
+            font-size: 16px;
+            color: #4A90E2;
+            background: #f0faff;
+            border-radius: 10px;
+            padding: 10px 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .cool-checkbox:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .cool-checkbox input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4A90E2;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .cool-checkbox input[type="checkbox"]:checked {
+            background: #4A90E2;
+            border-color: #4A90E2;
+        }
+
+        .cool-checkbox input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 16px;
+            display: block;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        .cool-checkbox span {
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="bg-dark text-center text-warning" style="font-family:'Roboto';font-weight:700;">Concept Visioner</h1>
+    <p class="text-secondary text-center">Developed by <strong>S. A. M.</strong></p>
+    <main class="container mt-4">
+        <!-- Prompt Generation Section -->
+        <section id="prompt-section" class="p-4 mb-4 rounded shadow bg-light">
+            <h2>Generate Visualization Prompt</h2>
+            <div class="row align-items-center">
+                <!-- Input for Concept -->
+                <div class="mb-3 col-6">
+                    <label for="topicInput" class="form-label text-primary fw-bold">💡 Concept:</label>
+                    <input type="text" id="topicInput" class="form-control border-primary shadow-sm" placeholder="e.g., Fractals">
+                </div>
+                <!-- Button to Show Examples -->
+                <div class="col-6 text-center">
+                    <button type="button" class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#tutorialModal" style="font-size: 0.85rem;">
+                        Watch Tutorial
+                    </button>
+                    <div class="text-center mt-1">
+                        <button type="button" class="btn btn-success btn-sm mt-4 fw-bold" data-bs-toggle="modal" data-bs-target="#examplesModal" style="font-size: 0.85rem;">
+                            Show Examples
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="cool-checkbox">
+                        <input type="checkbox" id="diagramCheckbox">
+                        <span>Generate Diagram (Static visualization only)</span>
+                    </label><br>
+                    <label for="designStyleSelect" class="form-label">Design Style:</label>
+                    <select class="form-select" id="designStyleSelect">
+                        <option value="3D">3D</option>
+                        <option value="Minimalist">Minimalist</option>
+                        <option value="Geometric">Geometric</option>
+                        <option value="Abstract">Abstract</option>
+                        <option value="Modern">Modern</option>
+                        <option value="Cyberpunk">Cyberpunk</option>
+                        <option value="Sketch">Sketch</option>
+                        <option value="Realistic">Realistic</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="animationTypeSelect" class="form-label">Animation Type:</label>
+                    <select class="form-select" id="animationTypeSelect">
+                        <option value="Default Animation">Default</option>
+                        <option value="Text Animation">Text Animation</option>
+                        <option value="Creative Fun Animation">Creative Fun Animation</option>
+                        <option value="Interactive Animation">Interactive Animation</option>
+                        <option value="Scientific Visualization">Scientific Visualization</option>
+                        <option value="Abstract Artistic Animation">Abstract Artistic Animation</option>
+                        <option value="Dynamic Data Animation">Dynamic Data Animation</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="widthInput" class="form-label">Canvas Width:</label>
+                    <input type="number" id="widthInput" class="form-control" value="500" min="100">
+                </div>
+                <div class="col-md-6">
+                    <label for="heightInput" class="form-label">Canvas Height:</label>
+                    <input type="number" id="heightInput" class="form-control" value="500" min="100">
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button id="generatePromptBtn" class="btn btn-primary">Generate Prompt</button>
+            </div>
+            <div class="row align-items-center">
+                <div id="promptOutput" class="mt-3 p-3 border rounded bg-white text-secondary font-monospace col-8 shadow-sm" style="display: none; font-size: 0.6rem;">
+                </div>
+                <div class="mt-3 d-flex flex-column gap-3 col-4">
+                    <button id="sendToPerplexityBtn" class="btn btn-outline-success rounded-pill py-2 px-3 text-white text-center p-2" style="background: linear-gradient(to right, #9be15d, #00e3ae); display: none; font-size: 15px;">
+                        <i class="bi bi-send-check"></i>➠
+                        <img src="https://play-lh.googleusercontent.com/6STp0lYx2ctvQ-JZpXA1LeAAZIlq6qN9gpy7swLPlRhmp-hfvZePcBxqwVkqN2BH1g=s104-rw" alt="Perplexity Icon" style="width: 15px; height: 15px; vertical-align: middle;" class="rounded">
+                    </button>
+                    <button id="copyToChatGPTBtn" class="btn btn-outline-warning rounded-pill py-2 px-3 text-white text-center p-2" style="background: linear-gradient(to right, #f3d400, #f7971e); display: none; font-size: 15px;">
+                        Copy
+                        <i class="bi bi-copy"></i> ᯓ
+                        <img src="https://play-lh.googleusercontent.com/6qi3w4uqKaD1c-CBdkkfO6IL0lH4OoCTEdiX0oYbLFxwfvxu1t8vuwHcagdYSFmFKmI=s104-rw" alt="ChatGPT Icon" style="width: 15px; height: 15px; vertical-align: middle;" class="rounded">
+                    </button>
+                    <div class="d-grid gap-2 mt-3">
+                        <button id="addCustomPromptBtn" class="btn btn-secondary rounded-pill">
+                            Add Custom Prompt Note
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HTML Input Section -->
+        <section id="html-section" class="p-4 mb-4 rounded shadow bg-light">
+            <div class="card p-3 mb-4 shadow-sm" style="border-radius: 15px; background: linear-gradient(to right, #f8f9fa, #e9ecef);">
+                <h2 class="card-title text-center text-primary" style="font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);">HTML Viewer & Saver</h2>
+                <div class="d-flex justify-content-center gap-4 mt-3">
+                    <button id="clearHtmlBtn" class="btn btn-outline-danger rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </button>
+                    <button id="pasteHtmlBtn" class="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow">
+                        <i class="bi bi-clipboard"></i> Paste
+                    </button>
+                </div>
+            </div>
+
+            <textarea id="htmlCode" class="form-control mb-3" rows="8" placeholder="Paste your HTML code here"></textarea>
+            <div class="d-flex gap-3">
+                <button id="filterHtmlBtn" class="btn btn-info rounded-pill d-flex align-items-center gap-2">
+                    <i class="bi bi-filter"></i> HTML
+                </button>
+                <button id="viewHtmlBtn" class="btn btn-primary rounded-pill d-flex align-items-center gap-2">
+                    <i class="bi bi-eye"></i>
+                </button>
+                <button id="saveToSiteDataBtn" class="btn btn-success rounded-pill d-flex align-items-center gap-2">
+                    <i class="bi bi-save"></i>
+                </button>
+                <button id="saveToFileBtn" class="btn btn-warning rounded-pill d-flex align-items-center gap-2">
+                    <i class="bi bi-download"></i> Download
+                </button>
+            </div>
+        </section>
+
+        <!-- Preview Section -->
+        <section id="preview-section" class="p-4 mb-4 rounded shadow" style="background: linear-gradient(135deg, #ffffff, #f8f9fa); border: 2px solid #e0e0e0; border-radius: 20px;">
+            <h2 style="color: #4a4a4a; font-family: 'Arial', sans-serif; text-align: center; font-weight: bold; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);">
+                Preview
+            </h2>
+            <div class="text-center mt-3">
+                <button id="stopPreviewBtn" class="btn" style="background: linear-gradient(145deg, #e0e0e0, #f2f2f2); color: #4a4a4a; font-weight: bold; border-radius: 50px; padding: 12px 25px; border: none; box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1), -3px -3px 6px rgba(255, 255, 255, 0.6); display: none; cursor: pointer;">
+                    <img src="https://cdn-icons-png.flaticon.com/128/1828/1828843.png" alt="Stop Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 8px;">
+                    Stop Preview
+                </button>
+            </div>
+            <iframe id="iframe-preview" style="display: none; margin-top: 15px; width: 100%; height: 100vh; border: 3px dashed #d0d0d0; border-radius: 15px; box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.1), inset -3px -3px 6px rgba(255, 255, 255, 0.6);"></iframe>
+        </section>
+
+        <!-- Saved Files Section -->
+        <section id="saved-files-section" class="p-4 mb-4 rounded shadow bg-light">
+            <h2>Saved Files</h2>
+            <ul id="savedFilesList" class="list-group">
+                <!-- Saved files will be dynamically listed here -->
+            </ul>
+        </section>
+    </main>
+    <div id="notification" style="display: none; position: fixed; bottom: 10px; right: 10px; background: #4CAF50; color: white; padding: 10px; border-radius: 5px;">Prompt copied to clipboard!</div>
+    <div class="modal fade" id="tutorialModal" tabindex="-1" aria-labelledby="tutorialModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tutorialModalLabel">Tutorial Video</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Video -->
+                    <div class="ratio ratio-16x9">
+                        <video id="tutorialVideo" controls>
+                            <source src="https://res.cloudinary.com/dmttn34te/video/upload/v1732326667/Tutorial-ezgif.com-video-speed_dhxhrg.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="fullscreenModal" tabindex="-1" aria-labelledby="fullscreenModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fullscreenModalLabel">Fullscreen Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="iframe-modal"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="examplesModal" tabindex="-1" aria-labelledby="examplesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="examplesModalLabel">100 Examples for Visualization</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">1. Solar System</li>
+                        <li class="list-group-item">2. Blood Cells</li>
+                        <li class="list-group-item">3. DNA Strand</li>
+                        <li class="list-group-item">4. Galaxy</li>
+                        <li class="list-group-item">5. Black Hole</li>
+                        <li class="list-group-item">6. Neuron Network</li>
+                        <li class="list-group-item">7. 3D Bar Graph</li>
+                        <li class="list-group-item">8. Bouncing Balls</li>
+                        <li class="list-group-item">9. Tree Growth</li>
+                        <li class="list-group-item">10. Ocean Waves</li>
+                        <li class="list-group-item">11. Rainfall</li>
+                        <li class="list-group-item">12. Butterfly Flight</li>
+                        <li class="list-group-item">13. Human Heart</li>
+                        <li class="list-group-item">14. Volcano Eruption</li>
+                        <li class="list-group-item">15. Cityscape</li>
+                        <li class="list-group-item">16. Wind Tunnel</li>
+                        <li class="list-group-item">17. Pendulum Motion</li>
+                        <li class="list-group-item">18. Fireworks</li>
+                        <li class="list-group-item">19. Spiral Nebula</li>
+                        <li class="list-group-item">20. Cube Field</li>
+                        <li class="list-group-item">21. Clockwork Mechanism</li>
+                        <li class="list-group-item">22. Floating Island</li>
+                        <li class="list-group-item">23. Meteor Shower</li>
+                        <li class="list-group-item">24. Forest Simulation</li>
+                        <li class="list-group-item">25. Chessboard</li>
+                        <li class="list-group-item">26. Torus Knot</li>
+                        <li class="list-group-item">27. Bubble Simulation</li>
+                        <li class="list-group-item">28. Magnetic Field Lines</li>
+                        <li class="list-group-item">29. Tornado</li>
+                        <li class="list-group-item">30. Bridge Animation</li>
+                        <li class="list-group-item">31. Particle Fountain</li>
+                        <li class="list-group-item">32. Mountain Range</li>
+                        <li class="list-group-item">33. Flower Bloom</li>
+                        <li class="list-group-item">34. Jellyfish Swim</li>
+                        <li class="list-group-item">35. Spider Web</li>
+                        <li class="list-group-item">36. Planet Rings</li>
+                        <li class="list-group-item">37. Crystal Growth</li>
+                        <li class="list-group-item">38. DNA Replication</li>
+                        <li class="list-group-item">39. Bubble Sort Animation</li>
+                        <li class="list-group-item">40. Domino Effect</li>
+                        <li class="list-group-item">41. Tesseract Rotation</li>
+                        <li class="list-group-item">42. Flying Bird Flock</li>
+                        <li class="list-group-item">43. Conveyor Belt</li>
+                        <li class="list-group-item">44. Interactive Maze</li>
+                        <li class="list-group-item">45. Sand Dunes</li>
+                        <li class="list-group-item">46. Rubik’s Cube</li>
+                        <li class="list-group-item">47. Rocket Launch</li>
+                        <li class="list-group-item">48. Water Droplet Ripple</li>
+                        <li class="list-group-item">49. 3D Lissajous Curve</li>
+                        <li class="list-group-item">50. Hourglass</li>
+                        <li class="list-group-item">51. Shooting Gallery</li>
+                        <li class="list-group-item">52. Piano Visualization</li>
+                        <li class="list-group-item">53. Hurricane Eye</li>
+                        <li class="list-group-item">54. Icicle Melting</li>
+                        <li class="list-group-item">55. Tree of Life</li>
+                        <li class="list-group-item">56. Glass Shatter</li>
+                        <li class="list-group-item">57. 3D Kaleidoscope</li>
+                        <li class="list-group-item">58. Waterfall</li>
+                        <li class="list-group-item">59. Maze Solver</li>
+                        <li class="list-group-item">60. Crystal Ball</li>
+                        <li class="list-group-item">61. Helium Balloons</li>
+                        <li class="list-group-item">62. Underwater Scene</li>
+                        <li class="list-group-item">63. Rotating DNA Strand</li>
+                        <li class="list-group-item">64. Planetary Eclipse</li>
+                        <li class="list-group-item">65. Magnet Attraction</li>
+                        <li class="list-group-item">66. Laser Grid</li>
+                        <li class="list-group-item">67. String Puppets</li>
+                        <li class="list-group-item">68. Book Opening</li>
+                        <li class="list-group-item">69. Floating Platforms</li>
+                        <li class="list-group-item">70. Aurora Borealis</li>
+                        <li class="list-group-item">71. Interactive Globe</li>
+                        <li class="list-group-item">72. Cave Exploration</li>
+                        <li class="list-group-item">73. Volcanic Smoke</li>
+                        <li class="list-group-item">74. Card Deck Animation</li>
+                        <li class="list-group-item">75. 3D Pendulum</li>
+                        <li class="list-group-item">76. Rotating Atom</li>
+                        <li class="list-group-item">77. Dynamic Solar Panels</li>
+                        <li class="list-group-item">78. Spinning Coin</li>
+                        <li class="list-group-item">79. Whirlpool</li>
+                        <li class="list-group-item">80. 3D Pyramid Puzzle</li>
+                        <li class="list-group-item">81. Windmill</li>
+                        <li class="list-group-item">82. Bee Hive</li>
+                        <li class="list-group-item">83. Meteor Crater</li>
+                        <li class="list-group-item">84. Rolling Dice</li>
+                        <li class="list-group-item">85. Slinky Movement</li>
+                        <li class="list-group-item">86. Fire Simulation</li>
+                        <li class="list-group-item">87. Leaf Fall</li>
+                        <li class="list-group-item">88. Cloud Formation</li>
+                        <li class="list-group-item">89. Galaxy Collision</li>
+                        <li class="list-group-item">90. Hovering UFO</li>
+                        <li class="list-group-item">91. Fidget Spinner</li>
+                        <li class="list-group-item">92. 3D Compass</li>
+                        <li class="list-group-item">93. Fishing Rod</li>
+                        <li class="list-group-item">94. Moon Phases</li>
+                        <li class="list-group-item">95. 3D Ripple Effect</li>
+                        <li class="list-group-item">96. Helium Balloons</li>
+                        <li class="list-group-item">97. Underwater Scene</li>
+                        <li class="list-group-item">98. Crystal Ball</li>
+                        <li class="list-group-item">99. Chess Game</li>
+                        <li class="list-group-item">100. Starfield Effect</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const htmlCodeInput = document.getElementById('htmlCode');
+        const iframePreview = document.getElementById('iframe-preview');
+        const iframeModal = document.getElementById('iframe-modal');
+        const savedFilesList = document.getElementById('savedFilesList');
+        document.getElementById('generatePromptBtn').addEventListener('click', () => {
+            const topic = document.getElementById('topicInput').value.trim();
+            const style = document.getElementById('designStyleSelect').value;
+            const animationType = document.getElementById('animationTypeSelect').value;
+            const width = parseInt(document.getElementById('widthInput').value, 10);
+            const height = parseInt(document.getElementById('heightInput').value, 10);
+            const isDiagram = document.getElementById('diagramCheckbox').checked;
+
+            if (!topic || isNaN(width) || isNaN(height) || width < 100 || height < 100) {
+                alert('Please fill all fields correctly.');
+                return;
+            }
+
+            const styleDetails = {
+                "Minimalist": "The visualization should focus on simplicity, clean lines, and minimal elements.",
+                "Abstract": "The visualization should use abstract forms and patterns, avoiding realistic depictions.",
+                "Modern": "The visualization should use trendy and sleek designs, with harmonious and elegant features.",
+                "Geometric": "The visualization should emphasize geometric shapes and patterns with precision.",
+                "3D": "The visualization should incorporate 3D effects, using depth, shading, and perspective for a dynamic look.",
+                "Cyberpunk": "The visualization should feature a futuristic, neon-infused, and tech-inspired aesthetic.",
+                "Sketch": "The visualization should resemble hand-drawn or sketched art, emphasizing rough lines and textures.",
+                "Realistic": "The visualization should aim for lifelike representations, with detailed and accurate elements."
+            };
+
+            const animationDetails = {
+                "Default Animation": "Make great visualization of concept.",
+                "Text Animation": "Apply typography animation techniques, such as typing out the text letter by letter, highlighting specific words, or emphasizing text movement (e.g., bounce, rotation, color shift). Use techniques like point-and-click interaction, word reveal, or underline animation to captivate the audience.",
+                "Creative Fun Animation": "Incorporate playful and colorful animations, such as bouncing shapes or quirky movements that make the text more interactive and fun.",
+                "Interactive Animation": "Design animations that react to user input, like mouse movement or button clicks, where text or shapes change based on user interaction.",
+                "Scientific Visualization": "Focus on precise and technical animations that visually explain scientific concepts or data, with text being used to explain or annotate key points.",
+                "Abstract Artistic Animation": "Employ free-form artistic animations with a strong focus on visual aesthetics, where text moves freely across the canvas in unique and abstract ways.",
+                "Dynamic Data Animation": "Create animations that adapt based on real-time data or user input, with text dynamically updating to reflect the changes in data or context."
+            };
+
+            const prompt = isDiagram ?
+                `Create a diagram to represent the concept of "${topic}". 
+    Requirements:
+    1. Canvas dimensions: ${width}x${height}.
+    2. Style: ${style} - ${styleDetails[style]}.
+    3. Description: The diagram should effectively communicate the core idea of the concept "${topic}" using ${style} style. 
+    4. Use p5.js for creating this diagram. Focus on clear, static visuals rather than animations.
+    5. Provide only the HTML code no extra text needed, with a <script> tag containing the complete p5.js implementation.` :
+                `Generate p5.js based HTML code for visualizing the concept of "${topic}". The visualization should be creative, engaging, and unique.
+    Design Requirements:
+    1. Canvas dimensions: ${width}x${height}.
+    2. Style: ${style} - ${styleDetails[style]}.
+    3. Animation Type: ${animationType} - ${animationDetails[animationType]}.
+    4. Utilize p5.js capabilities such as shapes, colors, loops, interactivity (if applicable), and animations.
+    5. Ensure the code begins with \`setup()\` and \`draw()\` functions and follows modern p5.js practices.
+    6. Harmonious color palette. Prefer dark or black background (optional). Visually pleasing patterns, and optimal responsiveness.
+    7. The visualization should make the best use of ${style} and ${animationType} techniques, and deliver a polished output.
+    8. Provide only the HTML code no extra text needed, with a <script> tag containing the complete p5.js implementation.`;
+
+            const promptOutput = document.getElementById('promptOutput');
+            promptOutput.textContent = prompt;
+            promptOutput.style.display = 'block';
+            // Show the buttons
+            document.getElementById('sendToPerplexityBtn').style.display = 'inline-block';
+            document.getElementById('copyToChatGPTBtn').style.display = 'inline-block';
+        });
+
+
+        // Send to Perplexity
+        document.getElementById('sendToPerplexityBtn').addEventListener('click', () => {
+            const prompt = document.getElementById('promptOutput').textContent;
+            navigator.clipboard.writeText(prompt).then(() => {
+                const perplexityUrl = `https://www.perplexity.ai/search/new?q=${encodeURIComponent(prompt)}`;
+                window.open(perplexityUrl, '_blank', 'width=800,height=600');
+            });
+        });
+
+        document.getElementById('copyToChatGPTBtn').addEventListener('click', () => {
+            const prompt = document.getElementById('promptOutput').textContent;
+            navigator.clipboard.writeText(prompt).then(() => {
+                // Show notification
+                const notification = document.getElementById('notification');
+                notification.style.display = 'block';
+
+                // Hide notification after 3 seconds
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+
+                // Open ChatGPT
+                const chatGPTUrl = `https://chat.openai.com/`;
+                window.open(chatGPTUrl, '_blank', 'width=800,height=600');
+            });
+        });
+        // Filter HTML
+        document.getElementById('filterHtmlBtn').addEventListener('click', () => {
+            const htmlContent = htmlCodeInput.value.trim();
+
+            if (!htmlContent) {
+                alert('Please paste HTML code to filter.');
+                return;
+            }
+
+            // Match the <!DOCTYPE html> ... </html> block
+            const fullHtmlRegex = /<!DOCTYPE html>[\s\S]*<html[\s\S]*<\/html>/i;
+            const match = htmlContent.match(fullHtmlRegex);
+
+            if (match) {
+                htmlCodeInput.value = match[0]; // Set textarea to valid HTML block
+                alert('HTML content has been filtered to retain only the <!DOCTYPE html> ... </html> block.');
+            } else {
+                alert('No valid <!DOCTYPE html> ... </html> block found.');
+            }
+        });
+
+        // Add Custom Prompt Note
+        document.getElementById('addCustomPromptBtn').addEventListener('click', () => {
+            const customNote = prompt('Enter your custom note to add to the prompt:');
+            if (!customNote) {
+                alert('No custom note provided.');
+                return;
+            }
+
+            const promptOutput = document.getElementById('promptOutput');
+            if (promptOutput.style.display === 'block') {
+                promptOutput.textContent += `\n9. ${customNote}`;
+                alert('Custom note added to the prompt.');
+            } else {
+                alert('Please generate a prompt before adding a custom note.');
+            }
+        });
+        // Clear the textarea
+        document.getElementById('clearHtmlBtn').addEventListener('click', () => {
+            htmlCodeInput.value = ''; // Clear the textarea content
+            alert('HTML textarea has been cleared.');
+        });
+
+        // Paste content into the textarea
+        document.getElementById('pasteHtmlBtn').addEventListener('click', async () => {
+            try {
+                const clipboardText = await navigator.clipboard.readText(); // Read text from clipboard
+                if (clipboardText) {
+                    htmlCodeInput.value = clipboardText; // Paste into the textarea
+                    alert('Content pasted into HTML textarea.');
+                } else {
+                    alert('Clipboard is empty or cannot be read.');
+                }
+            } catch (err) {
+                console.error('Failed to read clipboard: ', err);
+                alert('Unable to paste from clipboard. Please allow clipboard permissions.');
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('tutorialVideo');
+
+            // Loop the video from 0:00 to 0:17
+            video.addEventListener('timeupdate', () => {
+                if (video.currentTime > 17) {
+                    video.currentTime = 0; // Reset to start
+                    video.play(); // Ensure it continues playing
+                }
+            });
+        });
+        document.getElementById('viewHtmlBtn').addEventListener('click', () => {
+            const htmlContent = htmlCodeInput.value.trim();
+            const previewSection = document.getElementById('preview-section'); // Get the preview section
+
+            if (!htmlContent) {
+                alert('Please paste HTML code to view.');
+                return;
+            }
+
+            // Validate HTML before previewing
+            if (!isValidHTML(htmlContent)) {
+                alert('Invalid HTML content. Please ensure your input includes valid HTML structure.');
+                return;
+            }
+
+            iframePreview.srcdoc = htmlContent; // Set iframe content
+            iframePreview.style.display = 'block'; // Show iframe
+            document.getElementById('stopPreviewBtn').style.display = 'inline-block'; // Show stop button
+
+            // Scroll to the preview section
+            previewSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
+
+
+        // Stop Preview Logic
+        document.getElementById('stopPreviewBtn').addEventListener('click', () => {
+            iframePreview.srcdoc = ''; // Clear iframe content
+            iframePreview.style.display = 'none'; // Hide iframe
+            document.getElementById('stopPreviewBtn').style.display = 'none'; // Hide stop button
+        });
+
+        // Save to Site Data
+        const savedFiles = JSON.parse(localStorage.getItem('savedFiles')) || [];
+        document.getElementById('saveToSiteDataBtn').addEventListener('click', () => {
+            const htmlContent = htmlCodeInput.value.trim();
+            if (!htmlContent) {
+                alert('Please paste HTML code to save.');
+                return;
+            }
+            const title = extractTitle(htmlContent) || 'Untitled';
+            savedFiles.push({
+                name: title,
+                content: htmlContent
+            });
+            localStorage.setItem('savedFiles', JSON.stringify(savedFiles));
+            updateSavedFilesList();
+        });
+
+        // Save to Directory
+        document.getElementById('saveToFileBtn').addEventListener('click', () => {
+            const htmlContent = htmlCodeInput.value.trim();
+            if (!htmlContent) {
+                alert('Please paste HTML code to save.');
+                return;
+            }
+            const title = extractTitle(htmlContent) || 'Untitled';
+            const blob = new Blob([htmlContent], {
+                type: 'text/html'
+            });
+            const fileHandle = document.createElement('a');
+            fileHandle.href = URL.createObjectURL(blob);
+            fileHandle.download = `${title}.html`;
+            fileHandle.click();
+        });
+
+        function updateSavedFilesList() {
+            savedFilesList.innerHTML = '';
+            savedFiles.forEach((file, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                listItem.innerHTML = `
+            <div class="row w-100">
+                <div class="col-6">
+                    <span>${file.name}</span>
+                </div>
+                <div class="col-6 d-flex justify-content-end">
+                    <button class="btn btn-sm btn-primary me-2" onclick="viewSavedFile(${index})" style="max-height: 30px;">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-success me-2" onclick="downloadSavedFile(${index})" style="max-height: 30px;">
+                        <i class="bi bi-download"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteSavedFile(${index})" style="max-height: 30px;">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+                savedFilesList.appendChild(listItem);
+            });
+        }
+
+        // View Saved File
+        window.viewSavedFile = function(index) {
+            const file = savedFiles[index];
+            iframeModal.srcdoc = file.content;
+            const modal = new bootstrap.Modal(document.getElementById('fullscreenModal'));
+            modal.show();
+        };
+
+        // Download Saved File
+        window.downloadSavedFile = function(index) {
+            const file = savedFiles[index];
+            const blob = new Blob([file.content], {
+                type: 'text/html'
+            });
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = `${file.name}.html`; // Use the file's name for the download
+            downloadLink.click();
+        };
+
+        // Delete Saved File
+        window.deleteSavedFile = function(index) {
+            savedFiles.splice(index, 1);
+            localStorage.setItem('savedFiles', JSON.stringify(savedFiles));
+            updateSavedFilesList();
+        };
+
+        // Extract Title from HTML Content
+        function extractTitle(htmlContent) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            return doc.querySelector('title')?.textContent || null;
+        }
+
+        // Validate HTML using a simple regular expression (basic check)
+        function isValidHTML(html) {
+            const regex = /<\/?[a-z][\s\S]*>/i;
+            return regex.test(html);
+        }
+
+        // Load Saved Files on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateSavedFilesList();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
