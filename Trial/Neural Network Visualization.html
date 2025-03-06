@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let nodes = [];
+        let connections = [];
+        let numLayers = 5;
+        let nodesPerLayer = 5;
+
+        function setup() {
+            createCanvas(500, 500, WEBGL);
+            for (let i = 0; i < numLayers; i++) {
+                for (let j = 0; j < nodesPerLayer; j++) {
+                    let node = createVector((i - numLayers / 2) * 100, (j - nodesPerLayer / 2) * 50, random(-50, 50));
+                    nodes.push(node);
+                    if (i > 0) {
+                        connections.push([nodes[(i - 1) * nodesPerLayer + j], node]);
+                    }
+                }
+            }
+        }
+
+        function draw() {
+            background(0);
+            rotateY(frameCount * 0.01);
+            rotateX(frameCount * 0.01);
+            
+            // Draw connections
+            stroke(255, 100);
+            for (let conn of connections) {
+                line(conn[0].x, conn[0].y, conn[0].z, conn[1].x, conn[1].y, conn[1].z);
+            }
+
+            // Draw nodes
+            for (let node of nodes) {
+                push();
+                translate(node.x, node.y, node.z);
+                fill(255);
+                sphere(10);
+                pop();
+            }
+
+            // Update text dynamically based on user input or random data
+            fill(255);
+            textSize(24);
+            text("Neural Network Visualization", -200, -200);
+        }
+    </script>
+</body>
+</html>

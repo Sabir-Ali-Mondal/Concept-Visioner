@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuron Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script>
+        let angle = 0;
+        let neuronColor = '#ffcc00';
+        let axonColor = '#ff6600';
+        let dendriteColor = '#00ccff';
+
+        function setup() {
+            createCanvas(500, 500);
+            noStroke();
+        }
+
+        function draw() {
+            background(30);
+            translate(width / 2, height / 2);
+            
+            // Draw the cell body (soma)
+            fill(neuronColor);
+            ellipse(0, 0, 80, 80);
+
+            // Draw the axon
+            drawAxon();
+
+            // Draw dendrites
+            drawDendrites();
+
+            // Draw labels
+            fill(255);
+            textSize(16);
+            textAlign(CENTER);
+            text('Neuron Visualization', 0, -200);
+            text('Soma', 0, 40);
+            text('Axon', width / 2 - 60, -20);
+            text('Dendrites', -width / 2 + 60, -20);
+        }
+
+        function drawAxon() {
+            fill(axonColor);
+            let axonLength = map(sin(angle), -1, 1, 100, 150);
+            rect(-10, 40, 20, axonLength);
+            
+            // Draw axon terminals
+            for (let i = -2; i <= 2; i++) {
+                ellipse(-10 + i * 20, axonLength + 40, 10, 10);
+                fill(neuronColor); // Reset color for terminals
+                ellipse(-10 + i * 20, axonLength + 40, 5, 5);
+                fill(axonColor); // Restore axon color
+            }
+            
+            angle += 0.05; // Animate the axon length
+        }
+
+        function drawDendrites() {
+            fill(dendriteColor);
+            for (let i = -1; i <= 1; i++) {
+                push();
+                rotate(i * QUARTER_PI); // Rotate for each dendrite
+                beginShape();
+                vertex(0, -40);
+                vertex(30 * cos(angle), -60 + random(-10, 10));
+                vertex(20 * cos(angle), -80 + random(-10, 10));
+                endShape();
+                pop();
+            }
+        }
+    </script>
+</body>
+</html>

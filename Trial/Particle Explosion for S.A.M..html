@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <title>Particle Explosion for S.A.M.</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #121212;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let font;
+        let points = [];
+        let particles = [];
+        const textString = "S.A.M.";
+
+        function preload() {
+            font = loadFont('https://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/font/SourceCodePro-Bold.otf');
+        }
+
+        function setup() {
+            createCanvas(800, 400);
+            textFont(font);
+            textSize(128);
+            textAlign(CENTER, CENTER);
+
+            // Convert text to points
+            points = font.textToPoints(textString, -300, 0, 128, {
+                sampleFactor: 0.2, // Density of particles
+            });
+
+            // Create particles for the text
+            for (let i = 0; i < points.length; i++) {
+                let pt = points[i];
+                particles.push(new Particle(pt.x + width / 2, pt.y + height / 2));
+            }
+        }
+
+        function draw() {
+            background(18);
+
+            // Draw and update particles
+            for (let p of particles) {
+                p.update();
+                p.show();
+            }
+        }
+
+        // Particle class
+        class Particle {
+            constructor(x, y) {
+                this.target = createVector(x, y); // Target position (text point)
+                this.pos = createVector(random(width), random(height)); // Random start position
+                this.vel = createVector(); // Velocity
+                this.acc = createVector(); // Acceleration
+                this.r = 5; // Size of the particle
+                this.color = color(random(255), random(255), random(255)); // Random color
+            }
+
+            applyForce(force) {
+                this.acc.add(force);
+            }
+
+            update() {
+                // Calculate force to move towards target
+                let force = p5.Vector.sub(this.target, this.pos);
+                force.mult(0.1); // Slow it down
+                this.applyForce(force);
+
+                // Update position and velocity
+                this.vel.add(this.acc);
+                this.pos.add(this.vel);
+                this.acc.mult(0); // Reset acceleration
+
+                // Add damping to velocity
+                this.vel.mult(0.95);
+            }
+
+            show() {
+                noStroke();
+                fill(this.color);
+                ellipse(this.pos.x, this.pos.y, this.r);
+            }
+        }
+    </script>
+</body>
+</html>

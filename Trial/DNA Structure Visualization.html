@@ -1,0 +1,51 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Structure Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+</head>
+<body>
+    <script>
+        let angle = 0;
+
+        function setup() {
+            createCanvas(600, 600, WEBGL);
+        }
+
+        function draw() {
+            background(20);
+            rotateY(frameCount * 0.01);
+
+            // DNA structure
+            for (let i = -200; i <= 200; i += 20) {
+                push();
+                let x1 = sin(angle + i * 0.05) * 100;
+                let z1 = cos(angle + i * 0.05) * 100;
+                let x2 = sin(angle + i * 0.05 + PI) * 100;
+                let z2 = cos(angle + i * 0.05 + PI) * 100;
+
+                // Strands
+                stroke(50, 150, 255);
+                strokeWeight(4);
+                point(x1, i, z1);
+
+                stroke(255, 100, 150);
+                point(x2, i, z2);
+
+                // Base pairs
+                stroke(200);
+                strokeWeight(2);
+                line(x1, i, z1, x2, i, z2);
+
+                pop();
+            }
+
+            angle += 0.05;
+        }
+    </script>
+</body>
+</html>
+```

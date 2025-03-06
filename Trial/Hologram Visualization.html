@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hologram Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let angle = 0;
+        let shapes = [];
+
+        function setup() {
+            createCanvas(500, 500, WEBGL);
+            for (let i = 0; i < 10; i++) {
+                shapes.push({
+                    x: random(-200, 200),
+                    y: random(-200, 200),
+                    z: random(-200, 200),
+                    size: random(30, 70),
+                    color: color(random(255), random(255), random(255), 150)
+                });
+            }
+        }
+
+        function draw() {
+            background(0);
+            rotateY(angle * 0.5);
+            rotateX(angle * 0.3);
+            angle += 0.02;
+
+            for (let shape of shapes) {
+                push();
+                translate(shape.x, shape.y, shape.z);
+                fill(shape.color);
+                stroke(255);
+                strokeWeight(2);
+                sphere(shape.size);
+                pop();
+            }
+
+            drawHologramText();
+        }
+
+        function drawHologramText() {
+            push();
+            translate(0, 0, -100);
+            rotateY(angle * 0.2);
+            fill(255, 100);
+            textSize(48);
+            textAlign(CENTER);
+            text('Hologram', 0, 0);
+            pop();
+        }
+    </script>
+</body>
+</html>

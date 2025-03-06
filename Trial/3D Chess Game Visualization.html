@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Chess Game Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script>
+        let boardSize = 8;
+        let boxSize;
+        let pieces = [];
+        let colors = ['#f0d9b5', '#b58863'];
+
+        function setup() {
+            createCanvas(500, 500, WEBGL);
+            boxSize = width / boardSize;
+
+            // Initialize pieces
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    if ((i + j) % 2 === 0) {
+                        pieces.push(new ChessPiece(i * boxSize - width / 2, j * boxSize - height / 2, random(colors)));
+                    }
+                }
+            }
+        }
+
+        function draw() {
+            background(30);
+            rotateX(frameCount * 0.01);
+            rotateY(frameCount * 0.01);
+            
+            // Draw the chessboard
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    push();
+                    translate(i * boxSize - width / 2, j * boxSize - height / 2, -50);
+                    fill(colors[(i + j) % 2]);
+                    box(boxSize);
+                    pop();
+                }
+            }
+
+            // Animate pieces
+            for (let piece of pieces) {
+                piece.update();
+                piece.display();
+            }
+        }
+
+        class ChessPiece {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.zOffset = random(-10, 10);
+                this.angle = random(TWO_PI);
+                this.size = random(15, 25);
+            }
+
+            update() {
+                this.zOffset += sin(frameCount * 0.05) * 0.2;
+                this.angle += 0.01;
+            }
+
+            display() {
+                push();
+                translate(this.x, this.y, this.zOffset);
+                rotateY(this.angle);
+                fill(this.color);
+                sphere(this.size);
+                pop();
+            }
+        }
+    </script>
+</body>
+</html>

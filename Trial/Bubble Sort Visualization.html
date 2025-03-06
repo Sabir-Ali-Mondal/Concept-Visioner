@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort Visualization</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+        }
+        canvas {
+            border: 1px solid white;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script>
+        let values = [];
+        let numBars = 50;
+
+        function setup() {
+            createCanvas(500, 500, WEBGL);
+            for (let i = 0; i < numBars; i++) {
+                values[i] = floor(random(10, 200));
+            }
+            bubbleSort();
+        }
+
+        function draw() {
+            background(0);
+            rotateX(frameCount * 0.01);
+            rotateY(frameCount * 0.01);
+            translate(-width / 2, -height / 2);
+
+            for (let i = 0; i < values.length; i++) {
+                let h = map(values[i], 10, 200, 10, height);
+                push();
+                translate(i * (width / numBars), height / 2, 0);
+                fill(100, 150, 255);
+                box(width / numBars - 2, h, width / numBars - 2);
+                pop();
+            }
+        }
+
+        async function bubbleSort() {
+            for (let i = 0; i < values.length - 1; i++) {
+                for (let j = 0; j < values.length - i - 1; j++) {
+                    if (values[j] > values[j + 1]) {
+                        await swap(j, j + 1);
+                    }
+                }
+            }
+        }
+
+        function swap(i, j) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    let temp = values[i];
+                    values[i] = values[j];
+                    values[j] = temp;
+                    resolve();
+                }, 100);
+            });
+        }
+    </script>
+</body>
+</html>

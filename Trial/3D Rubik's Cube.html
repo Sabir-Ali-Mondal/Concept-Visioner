@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Rubik's Cube</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script>
+        let angle = 0;
+
+        function setup() {
+            createCanvas(500, 500, WEBGL);
+        }
+
+        function draw() {
+            background(200);
+            rotateX(angle);
+            rotateY(angle * 0.5);
+            drawCube();
+            angle += 0.01;
+        }
+
+        function drawCube() {
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    for (let z = -1; z <= 1; z++) {
+                        push();
+                        translate(x * 50, y * 50, z * 50);
+                        stroke(0);
+                        fill((x + 1) * 127, (y + 1) * 127, (z + 1) * 127);
+                        box(40);
+                        pop();
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>

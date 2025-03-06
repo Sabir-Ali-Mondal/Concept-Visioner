@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <title>JESMIN Rainbow Trail</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let font;
+        let points;
+        let trail = [];
+        let maxTrailLength = 100;
+
+        function preload() {
+            font = loadFont('https://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/font/SourceCodePro-Bold.otf');
+        }
+
+        function setup() {
+            createCanvas(500, 500);
+            textFont(font);
+            textSize(100);
+
+            // Convert "S.A.M." into points
+            points = font.textToPoints('S.A.M.', 50, 250, 100, {
+                sampleFactor: 0.2,
+                simplifyThreshold: 0
+            });
+        }
+
+        function draw() {
+            background(0, 50); // Slight opacity for a fading effect
+
+            // Draw text points
+            noStroke();
+            for (let i = 0; i < points.length; i++) {
+                let x = points[i].x;
+                let y = points[i].y;
+
+                fill(lerpColor(color(255, 0, 0), color(0, 0, 255), (sin(frameCount * 0.05 + i * 0.1) + 1) / 2));
+                ellipse(x, y, 6);
+            }
+
+            // Update trail
+            let trailPoint = createVector(mouseX, mouseY);
+            trail.push(trailPoint);
+
+            if (trail.length > maxTrailLength) {
+                trail.shift(); // Remove the oldest point
+            }
+
+            // Draw rainbow trail
+            for (let i = 0; i < trail.length; i++) {
+                let alpha = map(i, 0, trail.length, 0, 255);
+                fill(lerpColor(color(255, 0, 0), color(0, 255, 0), i / trail.length), alpha);
+                ellipse(trail[i].x, trail[i].y, 10);
+            }
+        }
+    </script>
+</body>
+</html>

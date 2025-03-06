@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Anime Character with Frock</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(to bottom, #e0eafc, #cfdef3);
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let blink = false,
+            mouthOpen = false,
+            eyeDir = 0,
+            waveHand = false;
+
+        function setup() {
+            createCanvas(500, 700);
+            setInterval(() => {
+                blink = true;
+                setTimeout(() => (blink = false), 400);
+            }, 2000);
+
+            setInterval(() => {
+                waveHand = !waveHand;
+            }, 1000);
+        }
+
+        function draw() {
+            background(240, 240, 240, 127);
+            noStroke();
+
+            // Head
+            fill(255, 220, 190);
+            ellipse(250, 300, 180, 230);
+
+            // Neck
+            rectMode(CENTER);
+            rect(250, 400, 50, 70, 10);
+
+            // Hair
+            fill(100, 60, 20);
+            arc(250, 280, 230, 280, PI + QUARTER_PI, TWO_PI - QUARTER_PI, CHORD);
+
+            // Bows
+            fill(255, 50, 50);
+            ellipse(190, 160, 100, 30);
+            ellipse(310, 160, 100, 30);
+            fill(220, 40, 40);
+            ellipse(250, 160, 40, 20);
+
+            // Hair details
+            fill(100, 60, 20);
+            beginShape();
+            vertex(160, 250);
+            bezierVertex(120, 220, 180, 150, 250, 170);
+            bezierVertex(320, 150, 380, 220, 340, 250);
+            endShape(CLOSE);
+            stroke(100, 60, 20);
+            strokeWeight(2);
+            line(180, 220, 200, 250);
+            line(320, 220, 300, 250);
+
+            // Eyes
+            fill(255);
+            ellipse(200, 290, 50, blink ? 5 : 70);
+            ellipse(300, 290, 50, blink ? 5 : 70);
+            if (!blink) {
+                fill(0);
+                ellipse(200 + eyeDir, 300, 20, 40);
+                ellipse(300 + eyeDir, 300, 20, 40);
+                fill(255);
+                ellipse(195 + eyeDir, 290, 8, 12);
+                ellipse(295 + eyeDir, 290, 8, 12);
+            }
+
+            // Mouth
+            noFill();
+            stroke(150, 50, 50);
+            strokeWeight(2);
+            if (mouthOpen) {
+                arc(250, 360, 50, 20, 0, PI); // Open mouth
+            } else {
+                arc(250, 360, 50, 10, 0, PI); // Closed mouth
+            }
+
+            // Blush
+            fill(255, 60, 150, 180); // Transparent blush
+            ellipse(190, 340, 30, 15);
+            ellipse(310, 340, 30, 15);
+
+            // Glasses
+            noFill();
+            stroke(0);
+            strokeWeight(1);
+            ellipse(200, 290, 80, 80); // Left lens
+            ellipse(300, 290, 80, 80); // Right lens
+            line(230, 290, 270, 290); // Bridge of glasses
+
+            // Frock
+            drawFrock(250, 550);
+
+            // Arms in a decent pose
+            drawArms(waveHand);
+
+            // Table
+            drawTable();
+
+            if (frameCount % 120 === 0) mouthOpen = !mouthOpen;
+            eyeDir = sin(frameCount * 0.02) * 5;
+        }
+
+        function drawFrock(centerX, centerY) {
+            // Frock top part
+            fill('#ff99cc');
+            beginShape();
+            vertex(centerX - 50, centerY - 120); // Top-left shoulder
+            vertex(centerX + 50, centerY - 120); // Top-right shoulder
+            vertex(centerX + 80, centerY - 20); // Waist-right
+            vertex(centerX - 80, centerY - 20); // Waist-left
+            endShape(CLOSE);
+
+            // Frock skirt
+            fill('#ff66b2');
+            beginShape();
+            vertex(centerX - 80, centerY - 20); // Waist-left
+            vertex(centerX + 80, centerY - 20); // Waist-right
+            vertex(centerX + 100, centerY + 120); // Bottom-right
+            vertex(centerX - 100, centerY + 120); // Bottom-left
+            endShape(CLOSE);
+
+            drawFixedFlowers(centerX, centerY);
+        }
+
+        function drawFixedFlowers(centerX, centerY) {
+            drawFlower(centerX - 30, centerY - 100, 12);
+            drawFlower(centerX, centerY - 110, 12);
+            drawFlower(centerX + 30, centerY - 100, 12);
+            drawFlower(centerX - 60, centerY + 30, 15);
+            drawFlower(centerX - 20, centerY + 60, 15);
+            drawFlower(centerX + 20, centerY + 60, 15);
+            drawFlower(centerX + 60, centerY + 30, 15);
+        }
+
+        function drawFlower(x, y, size) {
+            const petalColor = color(255, random(150, 200), random(200, 255));
+            fill(petalColor);
+            for (let i = 0; i < 5; i++) {
+                const angle = radians(i * 72);
+                const px = x + cos(angle) * size;
+                const py = y + sin(angle) * size;
+                ellipse(px, py, size * 1.2, size);
+            }
+            fill('#ffff66');
+            ellipse(x, y, size, size);
+        }
+
+        function drawArms(wave) {
+            fill(255, 220, 190);
+            stroke(255, 220, 190);
+            strokeWeight(30);
+
+            // Left arm waving motion
+            const leftArmEndY = wave ? 500 + sin(frameCount * 0.1) * 50 : 520;
+            line(200, 460, 140, leftArmEndY);
+
+            // Right arm
+            line(300, 460, 360, 520);
+        }
+
+        function drawTable() {
+            // Table
+            fill('#8B4513');
+            noStroke();
+            rect(50, 560, 420, 50, 10);
+
+            // Books on the table
+            fill('#C69C6D');
+            rect(170, 530, 60, 30);
+
+            // Cute flower pot starting from the right
+            fill('#FF6347');
+            beginShape();
+            vertex(20, 540);
+            vertex(120, 540);
+            vertex(140, 520);
+            vertex(0, 520);
+            endShape(CLOSE);
+
+            // Plant leaves
+            fill('#32CD32');
+            ellipse(70, 510, 50, 25);
+            ellipse(50, 500, 40, 20);
+            ellipse(90, 500, 40, 20);
+        }
+    </script>
+</body>
+</html>

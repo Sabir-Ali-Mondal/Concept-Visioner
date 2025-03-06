@@ -1,0 +1,37 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Waves Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+</head>
+<body>
+    <script>
+        let angle = 0;
+
+        function setup() {
+            createCanvas(600, 600);
+            noFill();
+        }
+
+        function draw() {
+            background(10);
+            translate(width / 2, height / 2);
+
+            // Drawing sound wave circles
+            for (let i = 0; i < 10; i++) {
+                let wave = sin(angle + i * 0.2) * 50; // Wave amplitude
+                stroke(lerpColor(color('#3498db'), color('#9b59b6'), i / 10));
+                strokeWeight(2);
+                ellipse(0, 0, 100 + i * 20 + wave, 100 + i * 20 - wave);
+            }
+
+            // Dynamic wave movement
+            angle += 0.05;
+        }
+    </script>
+</body>
+</html>
+```

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flying Anime Character</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let angle = 0;
+    let blinkTimer = 0;
+    let isBlinking = false;
+    let eyeDirection = 0; // -1 to 1 for left to right
+    let mouthState = 0; // 0: neutral, 1: smile, 2: open
+    let scrollX = 0; // Background scrolling
+    let flyingHeight = 0; // Character's vertical position
+
+    function setup() {
+      createCanvas(800, 500);
+      colorMode(HSB, 360, 100, 100);
+      noStroke();
+      frameRate(30); // Smooth animations
+    }
+
+    function draw() {
+      background(200, 40, 70); // Sky blue background
+
+      // Scroll background
+      scrollX -= 2; // Move background to simulate flying
+      if (scrollX <= -width) scrollX = 0;
+
+      // Draw background elements
+      drawBackground();
+
+      // Draw character
+      push();
+      translate(width / 2 + sin(angle) * 50, height / 2 - flyingHeight); // Flying motion
+      scale(1.5); // Scale up the character
+      drawHead();
+      drawBody();
+      drawFrock();
+      pop();
+
+      // Update animations
+      updateEyeMovement();
+      updateBlinking();
+      updateMouthExpression();
+      updateFlying();
+      angle += 0.05;
+    }
+
+    function drawBackground() {
+      // Ground
+      fill(120, 60, 50); // Green grass
+      rect(scrollX, height - 100, width, 100);
+
+      // Road
+      fill(0, 0, 30); // Dark gray road
+      rect(scrollX, height - 80, width, 40);
+
+      // Houses
+      for (let i = 0; i < 5; i++) {
+        let houseX = scrollX + i * 200;
+        drawHouse(houseX, height - 180);
+      }
+
+      // Trees
+      for (let i = 0; i < 10; i++) {
+        let treeX = scrollX + i * 100 + 50;
+        drawTree(treeX, height - 150);
+      }
+    }
+
+    function drawHouse(x, y) {
+      // House walls
+      fill(20, 80, 70); // Brown
+      rect(x, y, 80, 60);
+
+      // Roof
+      fill(10, 80, 80); // Red
+      triangle(x, y, x + 40, y - 40, x + 80, y);
+
+      // Door
+      fill(0, 0, 50); // Dark gray
+      rect(x + 30, y + 30, 20, 30);
+    }
+
+    function drawTree(x, y) {
+      // Trunk
+      fill(20, 80, 70); // Brown
+      rect(x, y, 20, 50);
+
+      // Leaves
+      fill(120, 60, 80); // Green
+      ellipse(x + 10, y - 20, 50, 60);
+    }
+
+    function drawHead() {
+      // Head
+      fill(30, 50, 80); // Skin tone
+      ellipse(0, -120, 80, 100);
+
+      // Hair
+      fill(280, 80, 80); // Purple hair
+      arc(0, -140, 100, 140, 0, PI); // Top hair
+      arc(-40, -120, 60, 80, PI / 2, PI); // Left bangs
+      arc(40, -120, 60, 80, 0, PI / 2); // Right bangs
+
+      // Eyes
+      drawEyes();
+
+      // Mouth
+      drawMouth();
+    }
+
+    function drawEyes() {
+      // Eye positions
+      let leftEyeX = -20 + eyeDirection * 5; // Subtle movement
+      let rightEyeX = 20 + eyeDirection * 5;
+
+      // White part of eyes
+      fill(0, 0, 100); // White
+      ellipse(leftEyeX, -130, 20, 15); // Left eye
+      ellipse(rightEyeX, -130, 20, 15); // Right eye
+
+      if (!isBlinking) {
+        // Iris
+        fill(240, 100, 100); // Blue iris
+        ellipse(leftEyeX, -130, 10, 10); // Left iris
+        ellipse(rightEyeX, -130, 10, 10); // Right iris
+
+        // Highlights
+        fill(0, 0, 100); // White highlight
+        ellipse(leftEyeX - 2, -132, 3, 3); // Left highlight
+        ellipse(rightEyeX - 2, -132, 3, 3); // Right highlight
+      } else {
+        // Blinking: Draw closed eyes
+        fill(30, 50, 80); // Skin tone
+        rect(leftEyeX - 10, -130, 20, 5); // Left closed eye
+        rect(rightEyeX - 10, -130, 20, 5); // Right closed eye
+      }
+    }
+
+    function drawMouth() {
+      if (mouthState === 0) {
+        // Neutral mouth
+        fill(0, 100, 70); // Pink lips
+        arc(0, -110, 20, 10, 0, PI);
+      } else if (mouthState === 1) {
+        // Smiling
+        fill(0, 100, 70); // Pink lips
+        arc(0, -110, 20, 10, 0, PI + QUARTER_PI / 2);
+      } else if (mouthState === 2) {
+        // Open mouth
+        fill(0, 100, 70); // Pink lips
+        ellipse(0, -110, 15, 10);
+      }
+    }
+
+    function drawBody() {
+      // Torso
+      fill(30, 50, 80); // Skin tone
+      rect(-20, -90, 40, 60, 10); // Rounded rectangle for torso
+
+      // Arms
+      fill(30, 50, 80); // Skin tone
+      rect(-40, -90, 10, 50, 5); // Left arm
+      rect(30, -90, 10, 50, 5); // Right arm
+
+      // Hands
+      fill(30, 50, 80); // Skin tone
+      ellipse(-45, -40, 15, 15); // Left hand
+      ellipse(35, -40, 15, 15); // Right hand
+    }
+
+    function drawFrock() {
+      // Frock base
+      fill(300, 80, 80); // Pastel pink frock
+      beginShape();
+      vertex(-50, -30);
+      bezierVertex(-70, 0, -70, 100, 0, 150); // Left curve
+      bezierVertex(70, 100, 70, 0, 50, -30); // Right curve
+      endShape(CLOSE);
+
+      // Ruffles (animated)
+      let sway = sin(angle) * 10; // Sway effect
+      fill(300, 60, 90); // Lighter pink ruffles
+      beginShape();
+      vertex(-60, -10);
+      bezierVertex(-80 + sway, 20, -80 + sway, 120, 0, 170); // Left ruffle
+      bezierVertex(80 - sway, 120, 80 - sway, 20, 60, -10); // Right ruffle
+      endShape(CLOSE);
+    }
+
+    function updateEyeMovement() {
+      eyeDirection = sin(frameCount * 0.05) * 0.5; // Subtle eye movement
+    }
+
+    function updateBlinking() {
+      blinkTimer++;
+      if (blinkTimer > 60 && random() < 0.05) {
+        isBlinking = true;
+        blinkTimer = 0;
+      }
+      if (isBlinking) {
+        blinkTimer++;
+        if (blinkTimer > 5) {
+          isBlinking = false;
+        }
+      }
+    }
+
+    function updateMouthExpression() {
+      if (frameCount % 60 === 0) {
+        mouthState = floor(random(3)); // Randomly switch between states
+      }
+    }
+
+    function updateFlying() {
+      flyingHeight = sin(angle * 2) * 50; // Vertical oscillation for flying
+    }
+  </script>
+</body>
+</html>

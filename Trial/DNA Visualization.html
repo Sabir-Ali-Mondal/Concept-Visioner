@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let angle = 0;
+
+        function setup() {
+            createCanvas(500, 500, WEBGL);
+        }
+
+        function draw() {
+            background(20);
+            rotateY(angle);
+            rotateX(angle * 0.5);
+            drawDNA();
+            angle += 0.01;
+        }
+
+        function drawDNA() {
+            strokeWeight(2);
+            for (let i = -100; i <= 100; i += 10) {
+                let y = map(i, -100, 100, -50, 50);
+                let z1 = sin(radians(i)) * 50;
+                let z2 = cos(radians(i)) * 50;
+
+                // Draw the backbone
+                stroke(255);
+                line(-100, y, z1, 100, y, z2);
+
+                // Draw the bases
+                fill(255, 0, 0);
+                push();
+                translate(-100, y, z1);
+                sphere(5);
+                pop();
+
+                fill(0, 0, 255);
+                push();
+                translate(100, y, z2);
+                sphere(5);
+                pop();
+            }
+            
+            // Annotations
+            fill(255);
+            textSize(16);
+            textAlign(CENTER);
+            text("3D DNA Structure Visualization", 0, -200);
+            textSize(12);
+            text("Red spheres represent one strand", -200, -180);
+            text("Blue spheres represent complementary strand", 200, -180);
+        }
+    </script>
+</body>
+</html>

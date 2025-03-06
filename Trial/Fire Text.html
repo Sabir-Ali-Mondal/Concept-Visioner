@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <title>Fire Text</title>
+</head>
+<body>
+    <script>
+        let names = ["AFSAN RAHAMAN", "JESMIN KHATUN","AKASH SHA","S.A.M"];
+        let currentNameIndex = 0;
+        let textPoints = [];
+        let flames = [];
+        let font;
+          let particleLifetime = 400;
+        let intensity = 1;
+        let windAngle = 0;
+        let windSpeed = 0;
+        let timer = 0;
+         let displayTime = 300;
+           let fading = false;
+        function preload() {
+             font = loadFont('https://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/font/SourceCodePro-Bold.otf');
+        }
+
+        function setup() {
+            createCanvas(3000, 600);
+              smooth();
+            initName();
+        }
+
+        function draw() {
+            background(0);
+
+            // Draw background gradient
+             let gradientColor1 = color(10,10,20, 50);
+            let gradientColor2 = color(20, 20, 30, 50);
+            for (let y = 0; y <= height; y++) {
+                let inter = map(y, 0, height, 0, 1);
+                 let gradientColor = lerpColor(gradientColor1, gradientColor2, inter);
+               stroke(gradientColor);
+               line(0, y, width, y);
+             }
+
+            // Update and draw flame particles
+            for (let i = 0; i < flames.length; i++) {
+                flames[i].update();
+                flames[i].display();
+            }
+            // Text outline
+             if(!fading){
+             noFill();
+               stroke(100, 100, 100);
+              strokeWeight(1.5);
+                beginShape();
+                 for (let p of textPoints) {
+                        vertex(p.x, p.y);
+                    }
+                  endShape(CLOSE);
+             }
+
+              //Wind effect
+            windAngle = map(sin(frameCount/100), -1, 1, -PI/20, PI/20); // Wind angle variation
+            windSpeed = map(sin(frameCount/200), -1, 1, 0, 0.05);  // Wind speed variation
+
+
+           if(timer > displayTime && currentNameIndex < names.length - 1){
+
+             fading = true;
+             let fadeValue = map(timer, displayTime, displayTime + 100, 1, 0)
+                  if(fadeValue <= 0){
+                      fading = false;
+                      currentNameIndex++;
+                    initName();
+                    timer = 0;
+                  }else{
+
+                      // Text outline
+                        noFill();
+                      stroke(100, 100, 100,fadeValue * 100);
+                     strokeWeight(1.5);
+                        beginShape();
+                         for (let p of textPoints) {
+                                vertex(p.x, p.y);
+                            }
+                         endShape(CLOSE);
+                  }
+
+            }
+             timer++;
+        }
+
+         function initName() {
+            textSize(200);
+            let currentName = names[currentNameIndex];
+             textPoints = [];
+            flames = [];
+
+
+              textPoints = font.textToPoints(currentName, width / 4, height / 2, 200, {
+                sampleFactor: 0.15,
+                simplifyThreshold: 0
+            });
+
+            // Initialize flame particles
+           for (let i = 0; i < textPoints.length; i++) {
+                for(let j = 0; j < 5; j++){ // More particles per point
+                    flames.push(new Flame(textPoints[i].x, textPoints[i].y));
+                }
+            }
+        }
+
+
+        class Flame {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = random(2, 6); // Slightly larger flame size for better visibility
+                this.alpha = random(150, 255); // Flames start with random transparency
+                this.angle = random(TWO_PI);
+                this.speed = random(1, 3);
+                this.offsetX = cos(this.angle) * this.speed;
+                this.offsetY = sin(this.angle) * this.speed;
+               this.lifetime = particleLifetime; // Set the lifetime of the flame particle
+                this.reverseTime = false; // To control flame's "revival" state
+               this.directionChangeRate = random(0.01,0.1);
+               this.direction = random(0,360);
+               this.prevDirection = this.direction;
+
+            }
+
+            update() {
+               if (this.reverseTime) {
+                    this.alpha += 2; // Faster alpha increase for revival
+                    if (this.alpha >= 255) {
+                        this.alpha = 255; // Prevent over-visibility
+                        this.reverseTime = false; // Stop the reverse effect
+                    }
+                } else {
+                    //Dynamic direction
+                    this.direction = this.prevDirection + random(-this.directionChangeRate,this.directionChangeRate);
+                   this.prevDirection = this.direction;
+
+                  // Update positions
+                     this.offsetX = cos(this.direction) * this.speed;
+                     this.offsetY = sin(this.direction) * this.speed;
+                      this.x += this.offsetX +  cos(windAngle) * windSpeed * 10;
+                    this.y += this.offsetY  + sin(windAngle) * windSpeed * 10;
+
+
+                    this.alpha -= 1.5 * intensity;  // Fade-out effect
+                    if (this.alpha <= 0) {
+                        this.reverseTime = true;  // Start "reviving" the flame
+                        this.x = textPoints[int(random(textPoints.length))].x + random(-5, 5) ;  // Reset position
+                        this.y = textPoints[int(random(textPoints.length))].y + random(-5, 5);
+                    }
+                }
+            }
+
+            display() {
+               let flameColor = color(255, 255, 0, this.alpha * intensity) // White
+                 if(this.alpha * intensity < 100){
+                 flameColor = color(255, 100, 0, this.alpha * intensity ) // Redish
+                 }else if(this.alpha * intensity < 200){
+                       flameColor = color(255,200, 0, this.alpha * intensity ) // Yellow
+                  }
+                fill(flameColor);
+                noStroke();
+                  ellipse(this.x, this.y, this.size * intensity);
+            }
+        }
+
+           function keyPressed() {
+              if(key === "I" || key === 'i'){
+               intensity = intensity == 1 ? 1.5 : 1;
+                }
+          }
+
+    </script>
+</body>
+</html>

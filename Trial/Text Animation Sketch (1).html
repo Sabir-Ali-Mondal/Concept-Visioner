@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Text Animation Sketch</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <script>
+        let textContent = "S.A.M.";
+        let charIndex = 0;
+        let reveal = false;
+        let scribbleLines = [];
+        let fontSize = 64;
+        let textPosX, textPosY;
+
+        function setup() {
+            createCanvas(500, 500);
+            background(30);
+            textSize(fontSize);
+            textAlign(CENTER, CENTER);
+            fill(255);
+            textPosX = width / 2;
+            textPosY = height / 2;
+
+            for (let i = 0; i < 100; i++) {
+                scribbleLines.push({
+                    x1: random(-5, 5),
+                    y1: random(-5, 5),
+                    x2: random(-5, 5),
+                    y2: random(-5, 5),
+                });
+            }
+        }
+
+        function draw() {
+            background(30, 30, 30, 50); // Create a trailing effect
+            drawSketchBackground();
+            if (frameCount % 10 === 0 && charIndex < textContent.length) {
+                charIndex++;
+            }
+
+            let displayedText = textContent.substring(0, charIndex);
+            text(displayedText, textPosX, textPosY);
+
+            if (reveal) {
+                drawSketchEffect();
+            }
+        }
+
+        function mousePressed() {
+            reveal = !reveal;
+        }
+
+        function drawSketchBackground() {
+            stroke(100, 100, 255, 50);
+            noFill();
+            for (let i = 0; i < 10; i++) {
+                rect(random(width), random(height), random(100, 300), random(100, 300));
+            }
+        }
+
+        function drawSketchEffect() {
+            push();
+            translate(textPosX, textPosY);
+            stroke(255, 100);
+            for (let line of scribbleLines) {
+                line(
+                    line.x1 + random(-2, 2), 
+                    line.y1 + random(-2, 2), 
+                    line.x2 + random(-2, 2), 
+                    line.y2 + random(-2, 2)
+                );
+            }
+            pop();
+        }
+    </script>
+</body>
+</html>
