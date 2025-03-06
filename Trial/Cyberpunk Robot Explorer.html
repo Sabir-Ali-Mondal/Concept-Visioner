@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTC-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk Robot Explorer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let walkCycle = 0;
+    let pulse = 0;
+    let windowLights = [];
+    let dronePositions = [];
+    let parallax = 0;
+
+    function setup() {
+      createCanvas(800, 500);
+      colorMode(HSB, 360, 100, 100);
+      noStroke();
+      frameRate(45);
+      
+      // Initialize window lights pattern
+      for (let i = 0; i < 200; i++) {
+        windowLights.push({
+          x: random(width),
+          y: random(height/2),
+          state: floor(random(3))
+        });
+      }
+      
+      // Initialize drone positions
+      for (let i = 0; i < 5; i++) {
+        dronePositions.push({
+          x: random(width),
+          y: random(height/4),
+          speed: random(2, 5)
+        });
+      }
+    }
+
+    function draw() {
+      background(240, 70, 30); // Deep purple night sky
+      
+      // Update animations
+      updateParallax();
+      updateRobotAnimations();
+      updateWindowLights();
+      
+      // Draw environment
+      drawCityscape();
+      drawDrones();
+      drawFallingRain();
+      
+      // Draw main character
+      push();
+      translate(width/2 + sin(parallax*0.1)*50, height - 150 + sin(walkCycle)*10);
+      scale(1.2);
+      drawRobot();
+      pop();
+    }
+
+    function drawCityscape() {
+      // Background buildings
+      fill(260, 30, 20);
+      rect(parallax%width, height-200, width, 200);
+      rect((parallax+width)%width, height-200, width, 200);
+      
+      // Foreground buildings with windows
+      for (let i = 0; i < 5; i++) {
+        let buildingX = (parallax*0.5 + i*200) % (width*2);
+        fill(260, 40, 30);
+        rect(buildingX, height - 300, 150, 300);
+      }
+    }
+
+    function drawRobot() {
+      // Body
+      fill(200, 20, 80); // Metallic blue
+      rect(-40, -100, 80, 120, 15);
+      
+      // Glowing core
+      fill(120 + pulse, 100, 100);
+      ellipse(0, -50, 30, 30);
+      
+      // Head
+      fill(200, 20, 80);
+      rect(-30, -160, 60, 60, 10);
+      // Antenna
+      stroke(120 + pulse, 100, 100);
+      strokeWeight(3);
+      line(0, -160, 0, -200);
+      noStroke();
+      
+      // Eyes
+      fill(60, 100, 100); // Yellow eyes
+      ellipse(-15, -140, 20, 15);
+      ellipse(15, -140, 20, 15);
+      
+      // Arms
+      push();
+      rotate(sin(walkCycle*2)*0.3);
+      fill(200, 20, 80);
+      rect(-70, -80, 30, 15, 5);
+      pop();
+      
+      push();
+      rotate(sin(walkCycle*2 + PI)*0.3);
+      fill(200, 20, 80);
+      rect(40, -80, 30, 15, 5);
+      pop();
+      
+      // Legs
+      fill(200, 20, 80);
+      rect(-25, 20, 20, 60, 10);
+      rect(5, 20, 20, 60, 10);
+    }
+
+    function updateRobotAnimations() {
+      walkCycle += 0.1;
+      pulse = sin(frameCount * 0.1) * 30;
+    }
+
+    function updateParallax() {
+      parallax -= 3;
+      if (parallax <= -width) parallax = 0;
+    }
+
+    function updateWindowLights() {
+      for (let light of windowLights) {
+        if (random() < 0.01) {
+          light.state = (light.state + 1) % 3;
+        }
+      }
+    }
+
+    function drawDrones() {
+      fill(0, 0, 100);
+      for (let drone of dronePositions) {
+        drone.x += drone.speed;
+        if (drone.x > width) drone.x = -50;
+        ellipse(drone.x, drone.y, 20, 10);
+        triangle(drone.x-15, drone.y, drone.x-5, drone.y-5, drone.x-5, drone.y+5);
+        triangle(drone.x+15, drone.y, drone.x+5, drone.y-5, drone.x+5, drone.y+5);
+      }
+    }
+
+    function drawFallingRain() {
+      stroke(190, 100, 80);
+      strokeWeight(2);
+      for (let i = 0; i < 50; i++) {
+        let x = random(width);
+        let y = random(height);
+        line(x, y, x + random(-2,2), y + random(5,10));
+      }
+    }
+  </script>
+</body>
+</html>
